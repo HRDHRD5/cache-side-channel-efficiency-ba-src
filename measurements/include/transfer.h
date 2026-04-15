@@ -26,7 +26,7 @@ uint32_t get_average()
     for (uint32_t i = 0; i < NUMBER_OF_MEASUREMENTS; i++)
     {
         sum += measurements[i];
-        printf("Flushed: %i\n", measurements[i]);
+        //printf("Flushed: %i\n", measurements[i]);
     }
 
     return sum / NUMBER_OF_MEASUREMENTS;
@@ -56,7 +56,7 @@ uint32_t get_average_cached()
     for (uint32_t i = 0; i < NUMBER_OF_MEASUREMENTS; i++)
     {
         sum += measurements[i];
-        printf("Cached: %i\n", measurements[i]);
+        //printf("Cached: %i\n", measurements[i]);
     }
 
     return sum / NUMBER_OF_MEASUREMENTS;
@@ -65,7 +65,9 @@ uint32_t get_average_cached()
 bool is_cached(uint8_t *address, size_t threshold)
 {
     size_t time = access_time(address);
-    printf("Address %ld cycles: %d\n", address, time);
+    //lfence();
+    //mfence();
+    printf("Address %zx cycles: %zu\n", address, time);
     if (time < threshold)
         return true;
     return false;
