@@ -35,7 +35,7 @@ static inline __always_inline void asm_encode_data(uint64_t data, uint8_t *chann
 }
 
 
-// returns if false during the training phase
+// returns true during the training phase, false if encoding can only happen transiently
 bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len, uint64_t secret, uint8_t channel[])
 {
     if (train_data[iteration] < train_data_len)
