@@ -41,30 +41,6 @@ bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len
     if (train_data[iteration] < train_data_len)
     {
         asm_encode_data(secret, channel);
-        //if (secret % 2 == 1)
-        //    channel[0] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[2 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[3 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[4 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[5 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[6 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
-        //if (secret % 2 == 1)
-        //    channel[7 * CACHE_LINE_SIZE] += 5;
-        //secret = DEVIDE_BY_2(secret);
         return true;
     }
     return false;
