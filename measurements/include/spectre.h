@@ -112,9 +112,9 @@ bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len
         //if (secret % 2 == 1)
         //    channel[7 * CACHE_LINE_SIZE] += 5;
         //secret = DEVIDE_BY_2(secret);
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 #endif
