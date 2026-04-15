@@ -72,7 +72,7 @@ bool is_cached(uint8_t *address, size_t threshold)
 }
 
 uint32_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len,
-                        uint8_t secret, uint8_t channel[(NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE]),
+                        uint8_t secret, uint8_t channel[]),
          uint8_t *in, uint32_t in_len, uint8_t *out, uint32_t out_len, size_t threshold)
 {
     // creating transfer array
