@@ -83,11 +83,11 @@ static inline __always_inline void asm_encode_data(uint8_t data, uint8_t *channe
 
 
 // returns if false during the training phase
-bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len, uint8_t secret, uint8_t channel[NUMBER_TRANSFER_BITS * CACHE_LINE_SIZE])
+bool leak_data(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len, uint8_t secret, uint8_t channel[(NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE])
 {
     if (train_data[iteration] < train_data_len)
     {
-        asm_encode_data(secret, channel);
+        asm_encode_data(secret, channel + CACHE_LINE_SIZE);
         //if (secret % 2 == 1)
         //    channel[0] += 5;
         //secret = DEVIDE_BY_2(secret);

