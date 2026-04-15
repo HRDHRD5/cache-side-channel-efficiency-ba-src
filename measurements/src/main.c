@@ -6,9 +6,9 @@
 #include "../include/spectre.h"
 
 int main() {
-    uint8_t *secret = "a";//bcdefghijklmnopqrstuvwxyz";
-    uint8_t transfered[26];
-    memset(transfered, '\0', 26);
+    uint8_t *secret = "abcdefghijklmnopqrstuvwxyz";
+    uint8_t transfered[27];
+    memset(transfered, '\0', 27);
 
     uint32_t average_not_cached = get_average();
     uint32_t average_cached = get_average_cached();
@@ -17,6 +17,6 @@ int main() {
     size_t threshold = average_not_cached - average_cached;
     printf("Using empirical threshold: \"%d\"\n", threshold);
     printf("Trying to transfer: \"%s\"\n", secret);
-    transfer(leak_data, secret, 1, transfered, 26, threshold);
+    transfer(leak_data, secret, 26, transfered, 27, threshold);
     printf("Result of transfer: \"%s\"\n", transfered);
 }
