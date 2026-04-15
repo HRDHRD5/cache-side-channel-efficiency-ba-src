@@ -1,0 +1,14 @@
+
+#ifndef CBSC_MEASUREMENT_CONSTANTS_H
+#define CBSC_MEASUREMENT_CONSTANTS_H
+
+#define NUMBER_OF_MEASUREMENTS 100
+#define NUMBER_TRANSFER_BITS 8
+#define TRAIN_DATA_LENGTH 255
+#define DEVIDE_BY_2(value) (value >> 1)
+#define DOUBLE_TIMES(value, n) (value << n)
+
+#define CACHE_LINE_SIZE 1024
+#define CACHE_LINE_SIZE_HEX 0x40
+
+#endif
