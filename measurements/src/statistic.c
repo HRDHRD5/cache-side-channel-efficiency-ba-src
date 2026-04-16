@@ -10,12 +10,12 @@ void run_transfer_statistics_tests(const char *filename)
     uint64_t transfered;
     uint64_t index = 0;
 
+    // Repeating experiment for N Times
+    for (uint64_t n = 0; n < NUMBER_OF_STATISTICS_MEASUREMENTS; n++)
     // Trying different transfer lengths from 4 to 32 bit
     for (int bits_count = 4; bits_count < 16; bits_count++)
     // Trying different Strides (min 64 bit --> L1 Cache line size)
     for (int stride = 64; stride <= 4096; stride *=2)
-    // Repeating experiment for N Times
-    for (uint64_t n = 0; n < NUMBER_OF_STATISTICS_MEASUREMENTS; n++)
     {
         lfence();
         mfence();
