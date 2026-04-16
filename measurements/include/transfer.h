@@ -18,6 +18,6 @@ bool is_cached(uint8_t *address, size_t threshold);
 uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len,
                         uint64_t secret, uint8_t channel[],
                         uint8_t bits_count, uint64_t stride),
-         uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride);
+         uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length);
 
 #endif

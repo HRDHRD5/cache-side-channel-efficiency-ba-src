@@ -8,5 +8,6 @@
 
 int main()
 {
-    run_transfer_statistics_tests("teststat.csv");
+    run_bits_and_stride_test("bits_and_stride.csv");
+    run_training_length_test("training_length.csv");
 }

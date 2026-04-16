@@ -9,6 +9,8 @@
 #ifndef CBSC_MEASUREMENT_STATISTIC_H
 #define CBSC_MEASUREMENT_STATISTIC_H
 
-void run_transfer_statistics_tests(const char *filename);
+void run_bits_and_stride_test(const char *filename);
+
+void run_training_length_test(const char *filename);
 
 #endif

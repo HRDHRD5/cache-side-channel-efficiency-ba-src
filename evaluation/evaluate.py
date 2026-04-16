@@ -3,9 +3,9 @@ from matplotlib import colors
 import math
 
 
-def parse_csv() -> dict:
+def parse_csv(file: str) -> dict:
     result = {}
-    with open("teststat.csv", "r") as f:
+    with open(file, "r") as f:
         while line := f.readline():
             if result == {}:
                 result["header"] = line.replace("\n", "").split(";")
@@ -13,16 +13,19 @@ def parse_csv() -> dict:
             else:
                 entry = {}
                 for i, column in enumerate(line.replace("\n", "").split(";")):
-                    if result["header"][i] in ["stride", "bit_count"]:
+                    if result["header"][i] in ["stride", "bit_count", "training_length"]:
                         column = int(column)
                     entry[result["header"][i]] = column
-                result["data"].setdefault(entry["stride"], {}).setdefault(
-                    entry["bit_count"], []).append(entry)
+                if "stride" in result["header"]:
+                    result["data"].setdefault(entry["stride"], {}).setdefault(
+                        entry["bit_count"], []).append(entry)
+                else:
+                    result["data"].setdefault(entry["training_length"], []).append(entry)
     return result
 
 
-def create_datapoints() -> dict[dict[int]]:
-    parsed = parse_csv()
+def create_bits_and_stride_datapoints() -> dict[dict[int]]:
+    parsed = parse_csv("bits_and_stride.csv")
     data = parsed["data"]
     result = {}
 
@@ -42,8 +45,8 @@ def create_datapoints() -> dict[dict[int]]:
     return result
 
 
-def print_datapoints():
-    datapoints = create_datapoints()
+def evaluate_bits_and_stride():
+    datapoints = create_bits_and_stride_datapoints()
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -70,5 +73,43 @@ def print_datapoints():
     plt.show()
 
 
+def create_training_length_datapoints() -> dict[int]:
+    parsed = parse_csv("training_length.csv")
+    data = parsed["data"]
+    result = {}
+
+    for length, measures in data.items():
+        bits_correct = 0
+        bits_transfered = 0
+        for entry in measures:
+            for i in range(8):
+                bits_transfered += 1
+                if entry["input"][i] == entry["output"][i]:
+                    bits_correct += 1
+
+        print(f"{length}: {len(measures)} -> {bits_correct}")
+        result[length] = bits_correct / bits_transfered
+
+    return result
+
+
+def evaluate_training_length():
+    datapoints = create_training_length_datapoints()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    for length, value in datapoints.items():
+        ax.bar(length, value, 1, 0, color=colors.BASE_COLORS["g"])
+
+    ax.set_xlabel('Training Length')
+    ax.set_ylabel('Accuracy')
+    ax.set_title('Fehlergenauigkeit des Cache Covert Channels abhängig von der Trainingslänge')
+
+    # Displaying the plot
+    plt.show()
+
+
 if __name__ == "__main__":
-    print_datapoints()
+    evaluate_training_length()
+    evaluate_bits_and_stride()
