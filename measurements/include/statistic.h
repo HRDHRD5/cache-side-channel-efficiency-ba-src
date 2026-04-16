@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "../include/transfer.h"
-#include "../include/spectre.h"
+#include "transfer.h"
+#include "spectre.h"
+#include "util.h"
 
 
 #ifndef CBSC_MEASUREMENT_STATISTIC_H

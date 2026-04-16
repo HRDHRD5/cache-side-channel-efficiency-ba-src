@@ -3,8 +3,10 @@
 #include <string.h>
 
 #include "../include/statistic.h"
+#include "../include/util.h"
 
 
-int main() {
+int main()
+{
     run_transfer_statistics_tests("teststat.csv");
 }
