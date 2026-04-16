@@ -61,6 +61,7 @@ def print_datapoints():
             ax.bar3d(math.log2(i), j, 0, 1, 1, jval * 100, color=(r,g,0))
 
     ax.set_xlabel('Stride')
+    plt.gca().invert_xaxis()
     ax.set_ylabel('Bit Count')
     ax.set_zlabel('Accuracy')
     ax.set_title('Fehlergenauigkeit des Cache Covert Channels abhängig von Stride und Bit Count')
