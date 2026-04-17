@@ -3,7 +3,7 @@ from matplotlib import colors
 import math
 
 
-def parse_csv(file: str) -> dict:
+def parse_csv(file: str, keys: list[str]) -> dict:
     result = {}
     with open(file, "r") as f:
         while line := f.readline():
@@ -16,16 +16,18 @@ def parse_csv(file: str) -> dict:
                     if result["header"][i] in ["stride", "bit_count", "training_length"]:
                         column = int(column)
                     entry[result["header"][i]] = column
-                if "stride" in result["header"]:
-                    result["data"].setdefault(entry["stride"], {}).setdefault(
-                        entry["bit_count"], []).append(entry)
-                else:
-                    result["data"].setdefault(entry["training_length"], []).append(entry)
+                data = result["data"]
+                for i, key in enumerate(keys, start=1):
+                    if i < len(keys):
+                        data.setdefault(entry[key], {})
+                    else:
+                        data.setdefault(entry[key], []).append(entry)
+                    data = data[entry[key]]
     return result
 
 
 def create_bits_and_stride_datapoints() -> dict[dict[int]]:
-    parsed = parse_csv("bits_and_stride.csv")
+    parsed = parse_csv("result.csv", ["stride", "bit_count"])
     data = parsed["data"]
     result = {}
 
@@ -74,7 +76,7 @@ def evaluate_bits_and_stride():
 
 
 def create_training_length_datapoints() -> dict[int]:
-    parsed = parse_csv("training_length.csv")
+    parsed = parse_csv("result.csv", ["training_length"])
     data = parsed["data"]
     result = {}
 
@@ -82,7 +84,9 @@ def create_training_length_datapoints() -> dict[int]:
         bits_correct = 0
         bits_transfered = 0
         for entry in measures:
-            for i in range(8):
+            if entry["bit_count"] > 8 or entry["stride"] < 1024:
+                continue
+            for i in range(entry["bit_count"]):
                 bits_transfered += 1
                 if entry["input"][i] == entry["output"][i]:
                     bits_correct += 1

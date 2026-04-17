@@ -4,6 +4,34 @@ const struct timespec req = {
     .tv_nsec = 1000000, //1ms
 };
 
+void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_length)
+{
+    lfence();
+    mfence();
+    //nanosleep(&req, NULL);
+
+    // setting random secret
+    uint64_t secret = random_uint_64();
+    uint64_t transfered = 0;
+
+    // getting a new threshold for every run
+    uint32_t average_not_cached = get_average();
+    uint32_t average_cached = get_average_cached();
+    size_t threshold = average_not_cached - average_cached;
+
+    transfered = transfer(leak_data, secret, threshold, bits_count, stride, training_data_length);
+
+    char secret_str[65];
+    char result_str[65];
+    memset(secret_str, '\0', 65);
+    memset(result_str, '\0', 65);
+    uint_to_bin_str(secret, secret_str, bits_count);
+    uint_to_bin_str(transfered, result_str, bits_count);
+
+    printf("%zu;%zu;%zu;%s;%s\n",
+            bits_count, stride, training_data_length, secret_str, result_str);
+}
+
 void run_bits_and_stride_test(const char *filename)
 {
     FILE *out = fopen(filename, "w");
