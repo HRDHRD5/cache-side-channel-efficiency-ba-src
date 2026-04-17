@@ -8,7 +8,7 @@
 #define DEVIDE_BY_2(value) (value >> 1)
 #define DOUBLE_TIMES(value, n) (value << n)
 
-#define CACHE_LINE_SIZE 1024
+#define STRIDE 4096
 
 #define NUMBER_OF_STATISTICS_MEASUREMENTS 1000
 

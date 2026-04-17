@@ -1,10 +1,13 @@
 #include "../include/statistic.h"
 
+const struct timespec req = {
+    .tv_nsec = 1000000, //1ms
+};
+
 void run_bits_and_stride_test(const char *filename)
 {
     FILE *out = fopen(filename, "w");
     fprintf(out, "index;bit_count;stride;input;output\n");
-
 
     uint64_t secret;
     uint64_t transfered;
@@ -19,6 +22,8 @@ void run_bits_and_stride_test(const char *filename)
     {
         lfence();
         mfence();
+        //nanosleep(&req, NULL);
+
         // setting random secret
         secret = random_uint_64();
         transfered = 0;
@@ -61,13 +66,15 @@ void run_training_length_test(const char *filename)
     uint64_t transfered;
     uint64_t index = 0;
 
+    // Trying different training lengths
+    for (int training_data_length = 5; training_data_length <= 150; training_data_length+=5)
     // Repeating experiment for N Times
     for (uint64_t n = 0; n < NUMBER_OF_STATISTICS_MEASUREMENTS; n++)
-    // Trying different training lengths
-    for (int training_data_length = 50; training_data_length <= TRAIN_DATA_LENGTH + 25; training_data_length+=5)
     {
         lfence();
         mfence();
+        //nanosleep(&req, NULL);
+
         // setting random secret
         secret = random_uint_64();
         transfered = 0;
@@ -78,7 +85,7 @@ void run_training_length_test(const char *filename)
 
         size_t threshold = average_not_cached - average_cached;
 
-        transfered = transfer(leak_data, secret, threshold, 8, CACHE_LINE_SIZE, training_data_length);
+        transfered = transfer(leak_data, secret, threshold, 8, STRIDE, training_data_length);
 
         char secret_str[65];
         char result_str[65];

@@ -87,7 +87,6 @@ def create_training_length_datapoints() -> dict[int]:
                 if entry["input"][i] == entry["output"][i]:
                     bits_correct += 1
 
-        print(f"{length}: {len(measures)} -> {bits_correct}")
         result[length] = bits_correct / bits_transfered
 
     return result
