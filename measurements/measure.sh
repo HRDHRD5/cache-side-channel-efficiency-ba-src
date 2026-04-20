@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 
-MEASUREMENTS=500
+MEASUREMENTS=250
 
 echo "Building binary"
 make
@@ -18,7 +18,7 @@ echo "Starting Measurements"
 for ((i = 0; i < MEASUREMENTS; i++)); do
     echo "Run Nr ${i}/${MEASUREMENTS}"
     for ((stride = 256; stride <= 4096; stride *= 2)) do
-        for ((bit_count = 4; bit_count <= 12; bit_count++)) do
+        for ((bit_count = 1; bit_count <= 10; bit_count++)) do
             for ((train_length = 0; train_length <= 250; train_length += 50)) do
                 ./measure $RANDOM $bit_count $stride $train_length >> $TMP_FILE
             done

@@ -39,6 +39,7 @@ def create_bits_and_stride_datapoints() -> dict[dict[int]]:
             for entry in measures:
                 if entry["training_length"] <= 0:
                     continue
+
                 for i in range(bit_count):
                     bits_transfered += 1
                     if entry["input"][i] == entry["output"][i]:
@@ -49,8 +50,32 @@ def create_bits_and_stride_datapoints() -> dict[dict[int]]:
     return result
 
 
-def evaluate_bits_and_stride():
-    datapoints = create_bits_and_stride_datapoints()
+def create_bits_and_stride_datapoints2() -> dict[dict[int]]:
+    parsed = parse_csv("result.csv", ["stride", "bit_count"])
+    data = parsed["data"]
+    result = {}
+
+    for stride, stride_sets in data.items():
+        for bit_count, measures in stride_sets.items():
+            bits_correct = 0
+            bits_transfered = 0
+            
+            for entry in measures:
+                if entry["training_length"] <= 0:
+                    continue
+
+                # Show the % where the secret is correctly transfered
+                bits_transfered += 1
+                if entry["input"] == entry["output"]:
+                    bits_correct += 1
+
+            result.setdefault(stride, {})[bit_count] = bits_correct / bits_transfered
+
+    return result
+
+
+def evaluate_bits_and_stride(datapoints_func: function):
+    datapoints = datapoints_func()
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -117,4 +142,5 @@ def evaluate_training_length():
 
 if __name__ == "__main__":
     evaluate_training_length()
-    evaluate_bits_and_stride()
+    evaluate_bits_and_stride(create_bits_and_stride_datapoints)
+    evaluate_bits_and_stride(create_bits_and_stride_datapoints2)
