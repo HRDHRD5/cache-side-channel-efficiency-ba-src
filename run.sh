@@ -6,8 +6,7 @@ cd measurements/
 ./measure.sh
 cd ../
 
-cp measurements/bits_and_stride.csv evaluation/.
-cp measurements/training_length.csv evaluation/.
+cp measurements/result.csv evaluation/.
 
 cd evaluation/
 python3 evaluate.py
