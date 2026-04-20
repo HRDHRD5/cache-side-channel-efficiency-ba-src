@@ -3,21 +3,27 @@
 cd "$(dirname "$0")"
 
 RESULT_FILE="result.csv"
+TMP_FILE="tmp.csv"
+
+MEASUREMENTS=500
 
 echo "Building binary"
 make
 
 echo "Creating result File"
-echo "bit_count;stride;training_length;input;output" > $RESULT_FILE
+echo "bit_count;stride;training_length;input;output" > $TMP_FILE
 
 echo "Starting Measurements"
 
-for ((i = 0; i < 100; i++)); do
+for ((i = 0; i < MEASUREMENTS; i++)); do
+    echo "Run Nr ${i}/${MEASUREMENTS}"
     for ((stride = 256; stride <= 4096; stride *= 2)) do
         for ((bit_count = 4; bit_count <= 12; bit_count++)) do
-            for ((train_length = 1; train_length <= 51; train_length += 10)) do
-                ./measure $RANDOM $bit_count $stride $train_length >> $RESULT_FILE
+            for ((train_length = 0; train_length <= 250; train_length += 50)) do
+                ./measure $RANDOM $bit_count $stride $train_length >> $TMP_FILE
             done
         done
     done
 done
+
+cat $TMP_FILE | grep -v "Training:" > $RESULT_FILE

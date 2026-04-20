@@ -37,6 +37,8 @@ def create_bits_and_stride_datapoints() -> dict[dict[int]]:
             bits_transfered = 0
             
             for entry in measures:
+                if entry["training_length"] <= 0:
+                    continue
                 for i in range(bit_count):
                     bits_transfered += 1
                     if entry["input"][i] == entry["output"][i]:
@@ -84,7 +86,7 @@ def create_training_length_datapoints() -> dict[int]:
         bits_correct = 0
         bits_transfered = 0
         for entry in measures:
-            if entry["bit_count"] > 8 or entry["stride"] < 1024:
+            if entry["bit_count"] > 8 or entry["stride"] < 4096:
                 continue
             for i in range(entry["bit_count"]):
                 bits_transfered += 1

