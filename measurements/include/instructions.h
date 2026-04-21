@@ -15,6 +15,8 @@ static inline __attribute__((always_inline)) void lfence(void) { __asm__ volatil
 
 static inline __attribute__((always_inline)) void mfence(void) { __asm__ volatile("mfence\n"); }
 
+// From figure 4 of Yarom and Falkner, “FLUSH+RELOAD: A High Resolution, Low Noise,
+// L3 Cache Side-Channel Attack.”
 static inline __attribute__((always_inline)) size_t access_time(void *ptr)
 {
   volatile unsigned long time;

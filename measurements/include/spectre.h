@@ -16,7 +16,7 @@ static inline __always_inline void asm_encode_data(
 
                      "movb $0x0, %%bl\n"
                      "movq $0x1, %%rcx\n"
-                     "movq %[linesize], %%rdx\n"
+                     "movq %[stride], %%rdx\n"
                      "movb %[bitscount], %%sil\n"
                      "enc:\n"
 
@@ -33,7 +33,7 @@ static inline __always_inline void asm_encode_data(
                      "cmpb %%sil, %%bl\n"
                      "jne enc\n"
                      :
-                     : [data] "r"(data), [channel] "r"(channel), [linesize] "r"(stride), [bitscount] "r"(bits_count)
+                     : [data] "r"(data), [channel] "r"(channel), [stride] "r"(stride), [bitscount] "r"(bits_count)
                      : "rax", "rbx", "rcx", "rdx", "rsi", "cc"
     );
 }
