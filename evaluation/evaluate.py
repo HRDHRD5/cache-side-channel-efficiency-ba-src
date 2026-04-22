@@ -74,8 +74,24 @@ def create_bits_and_stride_datapoints2() -> dict[dict[int]]:
     return result
 
 
+def print_graphing_data(datapoints: dict):
+    result = "\n---points for graph---\n"
+    for i, ival in datapoints.items():
+        if type(ival) == dict:
+            next_line = "\n"
+            for j,jval in ival.items():
+                result += f"{int(math.log2(i)),j} [{jval}]"#{int(math.log2(i)),j+1,jval}"
+                next_line += f"{int(math.log2(i)+1),j,jval}{int(math.log2(i)+1),j+1,jval}"
+            #result += next_line
+            result += "\n"
+        else:
+            result += f"{i,ival}"
+    print(result)
+
+
 def evaluate_bits_and_stride(datapoints_func: function):
     datapoints = datapoints_func()
+    print_graphing_data(datapoints)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -125,6 +141,7 @@ def create_training_length_datapoints() -> dict[int]:
 
 def evaluate_training_length():
     datapoints = create_training_length_datapoints()
+    print_graphing_data(datapoints)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
