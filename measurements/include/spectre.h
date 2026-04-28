@@ -1,16 +1,16 @@
+#ifndef CBSC_MEASUREMENT_SPECTRE_H
+#define CBSC_MEASUREMENT_SPECTRE_H
+
 #include <stdint.h>
 #include <stdio.h>
 
 #include "../include/constants.h"
 #include "../include/instructions.h"
-
-
-#ifndef CBSC_MEASUREMENT_SPECTRE_H
-#define CBSC_MEASUREMENT_SPECTRE_H
+#include "../include/transfer.h"
 
 static inline __always_inline void asm_encode_data(
-            uint64_t data, uint8_t *channel,
-            uint8_t bits_count, uint64_t stride)
+    uint64_t data, uint8_t *channel,
+    uint8_t bits_count, uint64_t stride)
 {
     __asm__ volatile("xor %%rax, %%rax\n"
 
@@ -34,13 +34,19 @@ static inline __always_inline void asm_encode_data(
                      "jne enc\n"
                      :
                      : [data] "r"(data), [channel] "r"(channel), [stride] "r"(stride), [bitscount] "r"(bits_count)
-                     : "rax", "rbx", "rcx", "rdx", "rsi", "cc"
-    );
+                     : "rax", "rbx", "rcx", "rdx", "rsi", "cc");
 }
 
 // returns true during the training phase, false if encoding can only happen transiently
-bool leak_data(uint32_t iteration, uint32_t *train_data,
-    uint32_t train_data_len, uint64_t secret, uint8_t channel[],
-    uint8_t bits_count, uint64_t stride);
+bool leak_data_flush_reload(uint32_t iteration, uint32_t *train_data,
+                            uint32_t train_data_len, uint64_t secret, uint8_t channel[],
+                            uint8_t bits_count, uint64_t stride);
+
+uint64_t decode_flush_reload(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold);
+
+// returns true during the training phase, false if encoding can only happen transiently
+bool leak_data_flush_flush(uint32_t iteration, uint32_t *train_data,
+                           uint32_t train_data_len, uint64_t secret, uint8_t channel[],
+                           uint8_t bits_count, uint64_t stride);
 
 #endif

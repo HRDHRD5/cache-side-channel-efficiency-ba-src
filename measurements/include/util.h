@@ -1,11 +1,11 @@
+#ifndef CBSC_MEASUREMENT_UTIL_H
+#define CBSC_MEASUREMENT_UTIL_H
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "constants.h"
-
-#ifndef CBSC_MEASUREMENT_UTIL_H
-#define CBSC_MEASUREMENT_UTIL_H
 
 uint64_t random_uint_64();
 
