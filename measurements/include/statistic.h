@@ -10,7 +10,7 @@
 #include "spectre.h"
 #include "util.h"
 
-void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_length);
+void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_length, uint8_t covert_channel);
 
 void run_bits_and_stride_test(const char *filename);
 

@@ -6,6 +6,7 @@ RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 
 MEASUREMENTS=250
+COVERT_CHANNEL=fr
 
 echo "Building binary"
 make
@@ -20,7 +21,7 @@ for ((i = 0; i < MEASUREMENTS; i++)); do
     for ((stride = 64; stride <= 4096; stride *= 2)) do
         for ((bit_count = 1; bit_count <= 10; bit_count++)) do
             for ((train_length = 0; train_length <= 150; train_length += 50)) do
-                ./measure $RANDOM $bit_count $stride $train_length >> $TMP_FILE
+                ./measure "${COVERT_CHANNEL}" $RANDOM $bit_count $stride $train_length >> $TMP_FILE
             done
         done
     done
