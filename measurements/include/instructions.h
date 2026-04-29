@@ -48,4 +48,37 @@ static inline __attribute__((always_inline)) size_t access_time(void *ptr)
       : "%esi", "%edx");
   return time;
 }
+
+static inline __attribute__((always_inline)) size_t flush_time(void *ptr)
+{
+  volatile unsigned long time;
+
+  __asm__ volatile(
+      // From x86 docs
+      // If software requires RDTSC to be executed only after all previous
+      // instructions have executed and all previous loads and stores are
+      // globally visible, it can execute the sequence MFENCE;LFENCE
+      // immediately before RDTSC.
+      "mfence\n"
+      "lfence\n"
+      "rdtsc\n"
+
+      // From x86 docs
+      // If software requires RDTSC to be executed prior to execution of any
+      // subsequent instruction (including any memory accesses), it can execute
+      // the sequence LFENCE immediately after RDTSC.
+      "lfence\n"
+
+      "movl %%eax, %%esi\n"
+      "clflush (%[address])\n"
+
+      "lfence\n"
+      "rdtsc\n"
+      "subl %%esi, %%eax\n"
+      : "=a"(time)
+      : [address] "c"(ptr)
+      : "%esi", "%edx");
+  return time;
+}
+
 #endif

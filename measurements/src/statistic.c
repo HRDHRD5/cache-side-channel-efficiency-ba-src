@@ -4,7 +4,7 @@ const struct timespec req = {
     .tv_nsec = 1000000, // 1ms
 };
 
-void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_length)
+void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_length, uint8_t covert_channel)
 {
     lfence();
     mfence();
@@ -15,11 +15,11 @@ void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_le
     uint64_t transfered = 0;
 
     // getting a new threshold for every run
-    uint32_t average_not_cached = get_average();
-    uint32_t average_cached = get_average_cached();
-    size_t threshold = average_not_cached - average_cached;
+    size_t threshold = get_threshold(covert_channel);
+    get_threshold(1);
 
-    transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride, training_data_length);
+    // adding one cache line padding to stride based on empirical testing
+    transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride + 64, training_data_length);
 
     char secret_str[65];
     char result_str[65];
@@ -57,11 +57,7 @@ void run_bits_and_stride_test(const char *filename)
                 transfered = 0;
 
                 // getting a new threshold for every run
-                uint32_t average_not_cached = get_average();
-                uint32_t average_cached = get_average_cached();
-                // printf("Average not cached: %ld\n", average_not_cached);
-                // printf("Average cached: %ld\n", average_cached);
-                size_t threshold = average_not_cached - average_cached;
+                size_t threshold = get_threshold(0);
                 // printf("Using empirical threshold: \"%d\"\n", threshold);
 
                 // printf("Trying to transfer: \"%zu\"\n", secret);
@@ -107,10 +103,7 @@ void run_training_length_test(const char *filename)
             transfered = 0;
 
             // getting a new threshold for every run
-            uint32_t average_not_cached = get_average();
-            uint32_t average_cached = get_average_cached();
-
-            size_t threshold = average_not_cached - average_cached;
+            size_t threshold = get_threshold(0);
 
             transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, 8, STRIDE, training_data_length);
 

@@ -1,19 +1,50 @@
 #include "../include/transfer.h"
 
-uint32_t get_average()
+size_t access_flushed(uint8_t *address)
+{
+    clflush(address);
+    lfence();
+    mfence();
+    return access_time(address);
+}
+
+size_t access_cached(uint8_t *address)
+{
+    maccess(address);
+    lfence();
+    mfence();
+    return access_time(address);
+}
+
+size_t flush_flushed(uint8_t *address)
+{
+    clflush(address);
+    lfence();
+    mfence();
+    return flush_time(address);
+}
+
+size_t flush_cached(uint8_t *address)
+{
+    maccess(address);
+    lfence();
+    mfence();
+    return flush_time(address);
+}
+
+size_t get_average_time(size_t (*function_to_measure)(uint8_t *address))
 {
     uint8_t addresses[NUMBER_OF_THRESHOLD_MEASUREMENTS*STRIDE];
 
-    uint32_t measurements[NUMBER_OF_THRESHOLD_MEASUREMENTS];
+    size_t measurements[NUMBER_OF_THRESHOLD_MEASUREMENTS];
 
-    for (uint32_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
+    for (size_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
     {
-        clflush(addresses + (i * STRIDE));
-        measurements[i] = access_time(addresses + (i * STRIDE));
+        measurements[i] = function_to_measure(addresses + (i * STRIDE));
     }
 
-    uint32_t sum = 0;
-    for (uint32_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
+    size_t sum = 0;
+    for (size_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
     {
         sum += measurements[i];
         //printf("Flushed: %i\n", measurements[i]);
@@ -21,38 +52,20 @@ uint32_t get_average()
 
     return sum / NUMBER_OF_THRESHOLD_MEASUREMENTS;
 }
-uint32_t get_average_cached()
+
+size_t get_threshold(uint8_t covert_channel)
 {
-    uint8_t addresses[NUMBER_OF_THRESHOLD_MEASUREMENTS*STRIDE];
-
-    uint32_t measurements[NUMBER_OF_THRESHOLD_MEASUREMENTS];
-
-    // Warming up Cache
-    for (uint32_t i = 0; i < 16; i++)
+    if (covert_channel == 0)
     {
-        for (uint32_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
-        {
-            addresses[i*STRIDE] *= addresses[i*STRIDE];
-        }
+        return get_average_time(access_flushed) - get_average_time(access_cached);
     }
-
-    for (uint32_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
+    else if (covert_channel == 1)
     {
-        addresses[i*STRIDE] *= addresses[i*STRIDE];
-        measurements[i] = access_time(&addresses[i*STRIDE]);
+        return get_average_time(flush_flushed) - get_average_time(flush_cached);
     }
-
-    uint32_t sum = 0;
-    for (uint32_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
-    {
-        sum += measurements[i];
-        //printf("Cached: %i\n", measurements[i]);
-    }
-
-    return sum / NUMBER_OF_THRESHOLD_MEASUREMENTS;
 }
 
-bool is_cached(uint8_t *address, size_t threshold)
+bool is_cached_load(uint8_t *address, size_t threshold)
 {
     size_t time = access_time(address);
     //lfence();
