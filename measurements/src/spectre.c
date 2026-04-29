@@ -41,5 +41,13 @@ bool leak_data_load_flush(uint32_t iteration, uint32_t *train_data,
 
 uint64_t decode_load_flush(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold)
 {
-    return 0;
+    uint64_t out = 0;
+    for (uint32_t i = 1; i < bits_count + 1; i++)
+    {
+        if (!is_cached_load((side_channel) + (i * stride), threshold))
+        {
+            out += DOUBLE_TIMES(1, (i - 1) % 8);
+        }
+    }
+    return out;
 }

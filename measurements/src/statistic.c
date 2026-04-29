@@ -19,7 +19,14 @@ void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_le
     get_threshold(1);
 
     // adding one cache line padding to stride based on empirical testing
-    transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride + 64, training_data_length);
+    if (covert_channel == 0)
+    {
+        transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride + 64, training_data_length, covert_channel);
+    }
+    else if (covert_channel == 1)
+    {
+        transfered = transfer(leak_data_load_flush, decode_load_flush, secret, threshold, bits_count, stride + 64, training_data_length, covert_channel);
+    }
 
     char secret_str[65];
     char result_str[65];
@@ -61,7 +68,7 @@ void run_bits_and_stride_test(const char *filename)
                 // printf("Using empirical threshold: \"%d\"\n", threshold);
 
                 // printf("Trying to transfer: \"%zu\"\n", secret);
-                transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride, TRAIN_DATA_LENGTH);
+                transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, bits_count, stride, TRAIN_DATA_LENGTH, 0);
                 // printf("Result of transfer: \"%zu\"\n", transfered);
 
                 char secret_str[65];
@@ -105,7 +112,7 @@ void run_training_length_test(const char *filename)
             // getting a new threshold for every run
             size_t threshold = get_threshold(0);
 
-            transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, 8, STRIDE, training_data_length);
+            transfered = transfer(leak_data_flush_reload, decode_flush_reload, secret, threshold, 8, STRIDE, training_data_length, 0);
 
             char secret_str[65];
             char result_str[65];

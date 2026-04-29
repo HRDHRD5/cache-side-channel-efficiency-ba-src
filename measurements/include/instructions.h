@@ -11,6 +11,10 @@ static inline __attribute__((always_inline)) void maccess(void *ptr) {
   __asm__ volatile("movb (%0), %%al\n" : : "r"(ptr) : "al");
 }
 
+static inline __attribute__((always_inline)) void prefetch(void *ptr) {
+  __asm__ volatile("prefetcht0 (%0)\n" : : "r"(ptr) : "al");
+}
+
 static inline __attribute__((always_inline)) void lfence(void) { __asm__ volatile("lfence\n"); }
 
 static inline __attribute__((always_inline)) void mfence(void) { __asm__ volatile("mfence\n"); }
@@ -67,17 +71,17 @@ static inline __attribute__((always_inline)) size_t flush_time(void *ptr)
       // If software requires RDTSC to be executed prior to execution of any
       // subsequent instruction (including any memory accesses), it can execute
       // the sequence LFENCE immediately after RDTSC.
-      "lfence\n"
+      "mfence\n"
 
       "movl %%eax, %%esi\n"
       "clflush (%[address])\n"
 
-      "lfence\n"
+      "mfence\n"
       "rdtsc\n"
       "subl %%esi, %%eax\n"
       : "=a"(time)
       : [address] "c"(ptr)
-      : "%esi", "%edx");
+      : "esi", "edx");
   return time;
 }
 
