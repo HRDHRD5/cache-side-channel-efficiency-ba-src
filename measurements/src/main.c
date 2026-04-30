@@ -11,10 +11,12 @@ void help()
 measure <mode> <nr0> <nr1> <nr2> <nr3>\n\
     <mode>\n\
         the covert channel to use options:\n\
-            - \"fr\"\n\
-                Flush+Reload\n\
-            - \"lf\"\n\
-                Load+Flush\n\
+            - \"frb\"\n\
+                Flush+Reload Bitwise\n\
+            - \"lfb\"\n\
+                Load+Flush Bitwise\n\
+            - \"fra\"\n\
+                Flush+Reload Array Index\n\
     <nr0>\n\
         random number generator seed\n\
     <nr1>\n\
@@ -35,16 +37,20 @@ int main(int argc, char * argv[])
     }
 
     /* Covert Channel Value:
-        0 --> Flush+Reload
-        1 --> Load+Flush
+        0 --> Flush+Reload Bitwise
+        1 --> Load+Flush Bitwise
+        2 --> Flush+Reload Array Index
     */
     uint8_t covert_channel = 0;
-    if (!strcmp(argv[1], "fr"))
+    if (!strcmp(argv[1], "frb"))
     {
         covert_channel = 0;
-    } else if (!strcmp(argv[1], "lf"))
+    } else if (!strcmp(argv[1], "lfb"))
     {
         covert_channel = 1;
+    } else if (!strcmp(argv[1], "fra"))
+    {
+        covert_channel = 2;
     }
     else {
         help();

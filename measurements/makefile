@@ -1,2 +1,2 @@
 compile:
-	gcc -g -o measure -std=c23 ./src/*.c
+	gcc -g -o measure -lm -std=c23 ./src/*.c

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include <math.h>
 #include "../include/instructions.h"
 #include "../include/spectre.h"
 #include "../include/constants.h"
@@ -13,11 +14,16 @@ size_t get_threshold(uint8_t covert_channel);
 
 bool is_cached_load(uint8_t *address, size_t threshold);
 
-uint64_t transfer(bool (*leak_data)(uint32_t iteration, uint32_t *train_data, uint32_t train_data_len,
-                                    uint64_t secret, uint8_t channel[],
-                                    uint8_t bits_count, uint64_t stride),
-                  uint64_t (*decode)(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold),
-                  uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length,
-                  uint8_t covert_channel);
+uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
+                                             uint8_t bits_count, uint64_t stride),
+                          uint64_t (*decode)(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold),
+                          uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length,
+                          uint8_t covert_channel);
+
+uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel,
+                                                 uint8_t bits_count, uint64_t stride),
+                              uint64_t (*decode)(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold),
+                              uint64_t in, size_t threshold, uint8_t bits_count, uint64_t stride, uint64_t train_data_length,
+                              uint8_t covert_channel);
 
 #endif

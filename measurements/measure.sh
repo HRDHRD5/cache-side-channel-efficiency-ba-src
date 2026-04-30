@@ -5,8 +5,8 @@ cd "$(dirname "$0")"
 RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 
-MEASUREMENTS=250
-COVERT_CHANNEL=fr
+MEASUREMENTS=50
+COVERT_CHANNEL=fra
 
 echo "Building binary"
 make
