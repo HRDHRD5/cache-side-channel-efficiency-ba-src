@@ -63,7 +63,4 @@ int main(int argc, char * argv[])
     uint64_t train_count = atoi(argv[5]);
 
     measure_ones(bit_count, stride, train_count, covert_channel);
-
-    //run_bits_and_stride_test("bits_and_stride.csv");
-    //run_training_length_test("training_length.csv");
 }
