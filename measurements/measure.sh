@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 
-MEASUREMENTS=50
+MEASUREMENTS=250
 COVERT_CHANNEL=fra
 
 echo "Building binary"
