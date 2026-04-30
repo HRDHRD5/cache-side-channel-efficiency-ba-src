@@ -92,7 +92,7 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
     bool training;
 
     uint32_t train_data[train_data_length * stride];
-    for (uint32_t i; i < train_data_length * stride; i++)
+    for (uint32_t i; i < train_data_length * stride; i += stride)
     {
         train_data[i] = i + 1;
     }
@@ -102,13 +102,13 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
 
     memset(side_channel, 5, ((bits_count + 2) * stride));
 
-    for (uint32_t i; i < train_data_length * stride; i++)
+    for (uint32_t i; i < train_data_length * stride; i += stride)
         clflush(&train_data[i]);
 
     if (covert_channel == 0 || covert_channel == 2)
     {
         // flushing the transfer array, before encoding data into it
-        for (uint32_t i = 0; i < ((bits_count + 2) * stride); i++)
+        for (uint32_t i = 0; i < ((bits_count + 2) * stride); i += stride)
             clflush(&side_channel[i]);
     }
     else

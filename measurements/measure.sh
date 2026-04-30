@@ -6,13 +6,13 @@ RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 
 MEASUREMENTS=250
-COVERT_CHANNEL=fra
+COVERT_CHANNEL=frb
 
 echo "Building binary"
 make
 
 echo "Creating result File"
-echo "bit_count;stride;training_length;input;output" > $TMP_FILE
+echo "bit_count;stride;training_length;input;output;runtime" > $TMP_FILE
 
 echo "Starting Measurements"
 

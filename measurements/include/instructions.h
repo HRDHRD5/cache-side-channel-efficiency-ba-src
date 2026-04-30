@@ -85,4 +85,13 @@ static inline __attribute__((always_inline)) size_t flush_time(void *ptr)
   return time;
 }
 
+static inline size_t rdtsc() {
+  size_t a, d;
+  __asm__ volatile ("mfence");
+  __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
+  a = (d<<32) | a;
+  __asm__ volatile ("mfence");
+  return a;
+}
+
 #endif
