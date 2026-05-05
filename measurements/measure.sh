@@ -8,6 +8,11 @@ TMP_FILE="tmp.csv"
 MEASUREMENTS=250
 COVERT_CHANNEL=frb
 
+echo "Saving CPU Specs"
+lscpu > cpu-specs.txt
+echo "" >> cpu-specs.txt
+lscpu --caches >> cpu-specs.txt
+
 echo "Building binary"
 make
 

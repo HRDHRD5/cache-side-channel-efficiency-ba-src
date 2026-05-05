@@ -7,6 +7,7 @@ cd measurements/
 cd ../
 
 cp measurements/result.csv evaluation/.
+cp measurements/cpu-specs.txt evaluation/.
 
 cd evaluation/
 python3 evaluate.py
