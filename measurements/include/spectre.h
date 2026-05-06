@@ -59,7 +59,7 @@ static inline __always_inline void asm_encode_load_array_index(
                      "imulq %%rdx, %%rax\n"
                      "prefetcht0 (%[channel], %%rax, 1)\n"
                      :
-                     : [data] "r"(data), [channel] "r"(channel), [stride] "r"(stride), [bitscount] "r"(bits_count)
+                     : [data] "r"(data), [channel] "r"(channel+stride), [stride] "r"(stride), [bitscount] "r"(bits_count)
                      : "rax", "rbx", "rcx", "rdx", "rsi", "cc");
 }
 

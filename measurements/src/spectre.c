@@ -48,7 +48,7 @@ uint64_t decode_flush_reload_array_index(uint8_t side_channel[], uint8_t bits_co
     // But thats fine ;)
     for (uint32_t i = (size_t)powl(2, bits_count); 0 < i; i--)
     {
-        if (is_cached_load((side_channel) + ((i-1) * stride), threshold))
+        if (is_cached_load((side_channel) + ((i) * stride), threshold))
         {
             out = i-1;
             break;
