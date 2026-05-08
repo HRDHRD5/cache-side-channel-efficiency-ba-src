@@ -73,6 +73,27 @@ def create_bits_and_stride_datapoints2() -> dict[dict[int]]:
 
     return result
 
+def create_bits_and_stride_datapoints3() -> dict[dict[int]]:
+    parsed = parse_csv("result.csv", ["stride", "bit_count"])
+    data = parsed["data"]
+    result = {}
+
+    for stride, stride_sets in data.items():
+        for bit_count, measures in stride_sets.items():
+            runtime = 0
+            runs = len(measures)
+            
+            for entry in measures:
+                if entry["training_length"] <= 0:
+                    continue
+
+                # calculate runtim e-3, because its in cycles
+                runtime += int(entry["runtime"])/1000
+
+            result.setdefault(stride, {})[bit_count] = runtime/runs
+
+    return result
+
 
 def print_graphing_data(datapoints: dict):
     result = "\n---points for graph---\n"
@@ -161,3 +182,4 @@ if __name__ == "__main__":
     evaluate_training_length()
     evaluate_bits_and_stride(create_bits_and_stride_datapoints)
     evaluate_bits_and_stride(create_bits_and_stride_datapoints2)
+    evaluate_bits_and_stride(create_bits_and_stride_datapoints3)

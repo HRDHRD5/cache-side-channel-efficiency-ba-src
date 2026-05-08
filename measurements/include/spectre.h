@@ -43,8 +43,8 @@ static inline __always_inline void asm_encode_load_array_index(
 {
     __asm__ volatile("xor %%rax, %%rax\n"
 
-                     "movb $0x1, %%bl\n"
-                     "movq $0x1, %%rcx\n"
+                     "movb $0x0, %%bl\n"
+                     "movq $0x0, %%rcx\n"
                      "movq %[stride], %%rdx\n"
                      "movb %[bitscount], %%sil\n"
                      "bitmask0:\n"
@@ -56,10 +56,11 @@ static inline __always_inline void asm_encode_load_array_index(
 
                      "movq %[data], %%rax\n"
                      "andq %%rcx, %%rax\n"
+                     "addq $0x01, %%rax\n"
                      "imulq %%rdx, %%rax\n"
                      "prefetcht0 (%[channel], %%rax)\n"
                      :
-                     : [data] "r"(data), [channel] "r"(channel+stride), [stride] "r"(stride), [bitscount] "r"(bits_count)
+                     : [data] "r"(data), [channel] "r"(channel), [stride] "r"(stride), [bitscount] "r"(bits_count)
                      : "rax", "rbx", "rcx", "rdx", "rsi", "cc");
 }
 

