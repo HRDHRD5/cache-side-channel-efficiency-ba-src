@@ -4,7 +4,7 @@ uint64_t decode_flush_reload_bitwise(uint8_t side_channel[], uint8_t bits_count,
 {
     uint64_t out = 0;
     uint32_t rand_i;
-    for (uint32_t i = 1; i < bits_count + 1; i++)
+    for (uint32_t i = 0; i < bits_count; i++)
     {
         rand_i = (((i) * 4079) + 13) % (bits_count);
         if (is_cached_load((side_channel) + ((rand_i+1) * stride), threshold))

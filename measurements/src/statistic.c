@@ -23,15 +23,15 @@ void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_le
     // adding one cache line padding to stride based on empirical testing
     if (covert_channel == 0)
     {
-        transfered = transfer_bitwise(asm_encode_load_bitwise, decode_flush_reload_bitwise, secret, threshold, bits_count, stride + 64, training_data_length, covert_channel);
+        transfered = transfer_bitwise(asm_encode_load_bitwise, decode_flush_reload_bitwise, secret, threshold, bits_count, stride, training_data_length, covert_channel);
     }
     else if (covert_channel == 1)
     {
-        transfered = transfer_bitwise(asm_encode_flush_bitwise, decode_load_flush_bitwise, secret, threshold, bits_count, stride + 64, training_data_length, covert_channel);
+        transfered = transfer_bitwise(asm_encode_flush_bitwise, decode_load_flush_bitwise, secret, threshold, bits_count, stride, training_data_length, covert_channel);
     }
     else if (covert_channel == 2)
     {
-        transfered = transfer_array_index(asm_encode_load_array_index, decode_flush_reload_array_index, secret, threshold, bits_count, stride + 64, training_data_length, covert_channel);
+        transfered = transfer_array_index(asm_encode_load_array_index, decode_flush_reload_array_index, secret, threshold, bits_count, stride, training_data_length, covert_channel);
     }
 
     size_t timediff = rdtsc() - start;
