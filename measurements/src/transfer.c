@@ -62,17 +62,14 @@ size_t get_threshold(uint8_t covert_channel)
     if (covert_channel == 0)
     {
         return cached + ((flushed - cached) / 2);
-        return get_average_time(access_flushed) - get_average_time(access_cached);
     }
     else if (covert_channel == 1)
     {
         return cached + ((flushed - cached) / 2);
-        return get_average_time(access_flushed) - get_average_time(access_cached);
     }
     else if (covert_channel == 2)
     {
         return cached + ((flushed - cached) / 2);
-        return get_average_time(access_flushed) - get_average_time(access_cached);
     }
 }
 
@@ -175,7 +172,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     if (covert_channel == 0 || covert_channel == 2)
     {
         // flushing the transfer array, before encoding data into it
-        for (uint32_t i = 0; i < channel_array_size; i+=stride)
+        for (uint32_t i = 0; i < channel_array_size; i += stride)
             clflush(&side_channel[i]);
     }
     else

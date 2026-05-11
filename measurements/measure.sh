@@ -6,7 +6,7 @@ RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
 COVERT_CHANNELS=( "frb" "fra" )
 
-MEASUREMENTS=250
+MEASUREMENTS=100
 
 echo "Saving CPU Specs"
 lscpu > cpu-specs.txt
