@@ -90,7 +90,7 @@ def create_bits_and_stride_datapoints3() -> dict[dict[int]]:
                 # calculate runtim e-3, because its in cycles
                 runtime += int(entry["runtime"])
 
-            result.setdefault(stride, {})[bit_count] = runtime/runs
+            result.setdefault(stride, {})[bit_count] = math.log2(runtime)
 
     return result
 
