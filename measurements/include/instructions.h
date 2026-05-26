@@ -3,10 +3,18 @@
 #ifndef CBSC_MEASUREMENT_INSTRUCTIONS_H
 #define CBSC_MEASUREMENT_INSTRUCTIONS_H
 
+// from l1tf_reloaded/include/asm.h
+// accessible at https://github.com/ThijsRay/l1tf_reloaded
+// from commit 340ab9ca33b7be5d9438dbf5834933292f8b72b6
+// variables may be renamed
 static inline __attribute__((always_inline)) void clflush(void *p) {
   __asm__ volatile("clflush (%0)\n" ::"r"(p));
 }
 
+// from l1tf_reloaded/include/asm.h
+// accessible at https://github.com/ThijsRay/l1tf_reloaded
+// from commit 340ab9ca33b7be5d9438dbf5834933292f8b72b6
+// variables may be renamed
 static inline __attribute__((always_inline)) void maccess(void *ptr) {
   __asm__ volatile("movb (%0), %%al\n" : : "r"(ptr) : "al");
 }
@@ -15,12 +23,24 @@ static inline __attribute__((always_inline)) void prefetch(void *ptr) {
   __asm__ volatile("prefetcht0 (%0)\n" : : "r"(ptr) : "al");
 }
 
+// from l1tf_reloaded/include/asm.h
+// accessible at https://github.com/ThijsRay/l1tf_reloaded
+// from commit 340ab9ca33b7be5d9438dbf5834933292f8b72b6
+// variables may be renamed
 static inline __attribute__((always_inline)) void lfence(void) { __asm__ volatile("lfence\n"); }
 
+// from l1tf_reloaded/include/asm.h
+// accessible at https://github.com/ThijsRay/l1tf_reloaded
+// from commit 340ab9ca33b7be5d9438dbf5834933292f8b72b6
+// variables may be renamed
 static inline __attribute__((always_inline)) void mfence(void) { __asm__ volatile("mfence\n"); }
 
-// From figure 4 of Yarom and Falkner, “FLUSH+RELOAD: A High Resolution, Low Noise,
+// from l1tf_reloaded/include/asm.h
+// This function is originally from figure 4 of Yarom and Falkner, “FLUSH+RELOAD: A High Resolution, Low Noise,
 // L3 Cache Side-Channel Attack.”
+// accessible at https://github.com/ThijsRay/l1tf_reloaded
+// from commit 340ab9ca33b7be5d9438dbf5834933292f8b72b6
+// variables may be renamed
 static inline __attribute__((always_inline)) size_t access_time(void *ptr)
 {
   volatile unsigned long time;
@@ -85,6 +105,10 @@ static inline __attribute__((always_inline)) size_t flush_time(void *ptr)
   return time;
 }
 
+// flush_flush/sc/cacheutils.h
+// accessible at https://github.com/isec-tugraz/flush_flush
+// from commit 37a3ca725e34cedfc150051e0ddf262700bb7588
+// variables may be renamed
 static inline size_t rdtsc() {
   size_t a, d;
   __asm__ volatile ("mfence");

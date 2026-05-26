@@ -99,11 +99,8 @@ def print_graphing_data(datapoints: dict):
     result = "\n---points for graph---\n"
     for i, ival in datapoints.items():
         if type(ival) == dict:
-            next_line = "\n"
             for j,jval in ival.items():
-                result += f"{int(math.log2(i)),j} [{jval}]"#{int(math.log2(i)),j+1,jval}"
-                next_line += f"{int(math.log2(i)+1),j,jval}{int(math.log2(i)+1),j+1,jval}"
-            #result += next_line
+                result += f"{int(math.log2(i)),j} [{jval}]"
             result += "\n"
         else:
             result += f"{i,ival}"
