@@ -59,7 +59,7 @@ size_t get_threshold(uint8_t covert_channel)
 {
     size_t flushed = get_average_time(access_flushed);
     size_t cached = get_average_time(access_cached);
-    if (covert_channel == 0)
+    if (covert_channel == 0 || covert_channel == 42)
     {
         return cached + ((flushed - cached) / 2);
     }
@@ -96,8 +96,8 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
     uint32_t out_index = 0;
     bool training;
 
-    uint32_t train_data[(train_data_length * stride)+1];
-    for (uint32_t i = 0; i < (train_data_length * stride)+1; i += stride)
+    uint32_t train_data[(train_data_length * stride) + 1];
+    for (uint32_t i = 0; i < (train_data_length * stride) + 1; i += stride)
     {
         train_data[i] = i;
     }
@@ -107,7 +107,7 @@ uint64_t transfer_bitwise(void (*asm_encode)(uint64_t data, uint8_t *channel,
 
     memset(side_channel, 5, channel_len);
 
-    clflush(&train_data[(train_data_length*stride)]);
+    clflush(&train_data[(train_data_length * stride)]);
 
     if (covert_channel == 0 || covert_channel == 2)
     {
@@ -157,7 +157,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     uint32_t out_index = 0;
     bool training;
 
-    uint32_t train_data[(train_data_length * stride)+1];
+    uint32_t train_data[(train_data_length * stride) + 1];
     for (uint32_t i = 0; i < (train_data_length * stride) + 1; i += stride)
     {
         train_data[i] = i;
@@ -168,7 +168,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
 
     memset(side_channel, 5, channel_array_size);
 
-    clflush(&train_data[(train_data_length*stride)]);
+    clflush(&train_data[(train_data_length * stride)]);
 
     if (covert_channel == 0 || covert_channel == 2)
     {
@@ -204,4 +204,72 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
     printf("Training: %d\n", training);
 
     return decode(side_channel, bits_count, stride, threshold);
+}
+
+uint64_t transfer_mixed(void (*asm_encode)(uint64_t data, uint8_t *channel,
+                                           uint8_t n_b, uint8_t n_a, uint64_t bitmask, uint64_t stride),
+                        uint64_t (*decode)(uint8_t side_channel[], uint8_t n_b, uint8_t n_a, uint64_t stride, size_t threshold),
+                        uint64_t in, uint8_t channel[], size_t threshold, uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t train_data_length,
+                        uint8_t covert_channel)
+{
+    size_t channel_array_size = (size_t)(((n_b * (powl(2, n_a) - 1)) + 3) * stride);
+    // creating transfer array
+    uint8_t side_channel[channel_array_size];
+    uint32_t out_index = 0;
+    bool training;
+
+    uint64_t bitmask = 0;
+    for (int i = 0; i < n_a; i++)
+    {
+        bitmask = bitmask << 1;
+        bitmask += 1;
+    }
+
+    uint32_t train_data[(train_data_length * stride) + 1];
+    for (uint32_t i = 0; i < (train_data_length * stride) + 1; i += stride)
+    {
+        train_data[i] = i;
+    }
+
+    // empty the output
+    uint64_t out = 0;
+
+    memset(side_channel, 5, channel_array_size);
+
+    clflush(&train_data[(train_data_length * stride)]);
+
+    if (covert_channel == 42)
+    {
+        // flushing the transfer array, before encoding data into it
+        for (uint32_t i = 0; i < channel_array_size; i += stride)
+            clflush(&side_channel[i]);
+    }
+    else
+    {
+        // loading the transfer array, before encoding data into it
+        for (uint32_t i = 0; i < channel_array_size; i += stride)
+            prefetch(&side_channel[i]);
+    }
+
+    maccess(&in);
+
+    lfence();
+    mfence();
+
+    // training the predictor
+    if (train_data_length > 0)
+    {
+        for (uint32_t i = 0; i < (train_data_length * stride); i += stride)
+        {
+            // using 0 as secret, so no adresses are loaded into cache
+            training = leak_data_dynamic(asm_encode, i, train_data, train_data_length * stride, 0, side_channel+stride, n_b, n_a, bitmask, stride);
+            //printf("Training: %d\n", training);
+        }
+    }
+
+    // writing secret into the side channel array
+    training = leak_data_dynamic(asm_encode, ((train_data_length) * stride), train_data, train_data_length * stride, in, side_channel+stride, n_b, n_a, bitmask, stride);
+    printf("Training: %d\n", training);
+
+    return decode(side_channel, n_b, n_a, stride, threshold);
 }

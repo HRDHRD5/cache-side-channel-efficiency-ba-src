@@ -4,9 +4,11 @@ cd "$(dirname "$0")"
 
 RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
-COVERT_CHANNELS=( "frb" "fra" )
+COVERT_CHANNELS=( "frb") # "fra" )
 
 MEASUREMENTS=100
+stride=4096
+train_length=20
 
 echo "Saving CPU Specs"
 lscpu > cpu-specs.txt
@@ -21,18 +23,16 @@ do
     echo "Starting Measurements for Channel: ${COVERT_CHANNEL}"
     echo ""
     echo "Creating result File"
-    echo "bit_count;stride;training_length;input;output;runtime" > $TMP_FILE
+    echo "n_b;n_a;stride;training_length;input;output;runtime" > $TMP_FILE
 
     echo "Starting Measurements"
 
     #echo "Run Nr ${i}/${MEASUREMENTS}"
-    for ((stride = 64; stride <= 4096; stride *= 2)) do
-        for ((bit_count = 1; bit_count <= 16; bit_count++)) do
-            for ((train_length = 0; train_length <= 50; train_length += 10)) do
-                for ((i = 0; i < MEASUREMENTS; i++)); do
-                    #./measure "${COVERT_CHANNEL}" $i $bit_count $stride $train_length >> $TMP_FILE
-                    ./throughput trnsf $bit_count 1 $i >> $TMP_FILE
-                done
+    for ((n_b = 1; n_b <= 32; n_b++)) do
+        for ((n_a = 1; n_a <= 1; n_a++)) do
+            for ((i = 0; i < MEASUREMENTS; i++)); do
+                ./measure "${COVERT_CHANNEL}" $i $n_b $n_a $stride $train_length >> $TMP_FILE
+                #./throughput trnsf $n_b 1 $i >> $TMP_FILE
             done
         done
     done
