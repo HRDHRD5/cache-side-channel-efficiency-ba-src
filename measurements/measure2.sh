@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 RESULT_FILE="result.csv"
 TMP_FILE="tmp.csv"
-COVERT_CHANNELS=( "frb") # "fra" )
+COVERT_CHANNELS=( "frbm" )
 
 MEASUREMENTS=100
 stride=4096
