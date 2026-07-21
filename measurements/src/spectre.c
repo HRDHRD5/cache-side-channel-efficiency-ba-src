@@ -72,3 +72,33 @@ uint64_t decode_flush_reload_dynamic(uint8_t side_channel[], uint8_t n_b, uint8_
     }
     return out;
 }
+
+uint64_t decode_flush_reload_dynamic_print_props(uint8_t side_channel[], uint8_t n_b, uint8_t n_a, uint64_t stride, size_t threshold)
+{
+    // avoid index 0
+    side_channel += stride;
+    uint32_t element_count = powl(2, n_a) - 1;
+    uint64_t out = 0;
+    int c = 0;
+    uint64_t tmp;
+    uint32_t rand_j;
+    for (uint32_t i = 0; i < n_b; i++)
+    {
+        tmp = 0;
+        for (uint32_t j = 0; j < element_count; j++)
+        {
+            rand_j = (((j) * 167) + 67) % (element_count);
+            // Index 0 is always cached because of training phase :/
+            // But thats not an issue
+            if (is_cached_load((side_channel) + (((i*element_count) + rand_j) * stride), threshold))
+            {
+                tmp = rand_j+1;
+            }
+            c++;
+        }
+        out += tmp << i*n_a;
+    }
+    printf("%zu;", c);
+
+    return out;
+}

@@ -51,12 +51,12 @@ def create_bits_and_stride_datapoints() -> dict[dict[int]]:
 
 
 def create_bits_and_stride_datapoints2() -> dict[dict[int]]:
-    parsed = parse_csv("result.csv", ["stride", "bit_count"])
+    parsed = parse_csv("result.csv", ["n_b", "n_a"])
     data = parsed["data"]
     result = {}
 
-    for stride, stride_sets in data.items():
-        for bit_count, measures in stride_sets.items():
+    for n_b, stride_sets in data.items():
+        for n_a, measures in stride_sets.items():
             bits_correct = 0
             bits_transfered = 0
             
@@ -69,17 +69,17 @@ def create_bits_and_stride_datapoints2() -> dict[dict[int]]:
                 if entry["input"] == entry["output"]:
                     bits_correct += 1
 
-            result.setdefault(stride, {})[bit_count] = bits_correct / bits_transfered
+            result.setdefault(n_b, {})[n_a] = bits_correct / bits_transfered
 
     return result
 
 def create_bits_and_stride_datapoints3() -> dict[dict[int]]:
-    parsed = parse_csv("result.csv", ["stride", "bit_count"])
+    parsed = parse_csv("result.csv", ["n_b", "n_a"])
     data = parsed["data"]
     result = {}
 
-    for stride, stride_sets in data.items():
-        for bit_count, measures in stride_sets.items():
+    for n_b, stride_sets in data.items():
+        for n_a, measures in stride_sets.items():
             runtime = 0
             runs = len(measures)
             
@@ -90,7 +90,7 @@ def create_bits_and_stride_datapoints3() -> dict[dict[int]]:
                 # calculate runtim e-3, because its in cycles
                 runtime += int(entry["runtime"])
 
-            result.setdefault(stride, {})[bit_count] = math.log2(runtime)
+            result.setdefault(n_b, {})[n_a] = runtime
 
     return result
 
@@ -136,46 +136,35 @@ def evaluate_bits_mixed(datapoints_func: function):
     plt.show()
 
 
-def create_training_length_datapoints() -> dict[int]:
-    parsed = parse_csv("result.csv", ["training_length"])
+def create_troughput_datapoints() -> dict[int]:
+    parsed = parse_csv("result.csv", ["n_b", "n_a"])
     data = parsed["data"]
     result = {}
 
-    for length, measures in data.items():
-        bits_correct = 0
-        bits_transfered = 0
-        for entry in measures:
-            if entry["bit_count"] > 8 or entry["stride"] < 4096:
-                continue
-            for i in range(entry["bit_count"]):
-                bits_transfered += 1
-                if entry["input"][i] == entry["output"][i]:
-                    bits_correct += 1
+    for n_b, stride_sets in data.items():
+        for n_a, measures in stride_sets.items():
+            runtime = 0
+            runs = len(measures)
+            
+            for entry in measures:
+                if entry["training_length"] <= 0:
+                    continue
 
-        result[length] = bits_correct / bits_transfered
+                # calculate runtim e-3, because its in cycles
+                runtime += int(entry["runtime"])
+
+            runtime = runtime/runs
+
+            # calc throughput as number_of_bits/runtime
+            print(f"Bit count {n_b*n_a}")
+            print(f"Runtime {runtime}")
+            result.setdefault(n_b, {})[n_a] = (n_b*n_a)/runtime
 
     return result
-
-
-def evaluate_training_length():
-    datapoints = create_training_length_datapoints()
-    print_graphing_data(datapoints)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    for length, value in datapoints.items():
-        ax.bar(length, value, 1, 0, color=colors.BASE_COLORS["g"])
-
-    ax.set_xlabel('Training Length')
-    ax.set_ylabel('Accuracy')
-    ax.set_title('Fehlergenauigkeit des Cache Covert Channels abhängig von der Trainingslänge')
-
-    # Displaying the plot
-    plt.show()
 
 
 if __name__ == "__main__":
     evaluate_bits_mixed(create_bits_and_stride_datapoints)
     evaluate_bits_mixed(create_bits_and_stride_datapoints2)
     evaluate_bits_mixed(create_bits_and_stride_datapoints3)
+    evaluate_bits_mixed(create_troughput_datapoints)

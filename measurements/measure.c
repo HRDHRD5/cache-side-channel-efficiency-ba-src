@@ -17,6 +17,10 @@ measure <mode> <nr0> <nr1> <nr2> <nr3>\n\
                 Load+Flush Bitwise\n\
             - \"fra\"\n\
                 Flush+Reload Array Index\n\
+            - \"frm\"\n\
+                Flush+Reload mixed Encoding\n\
+            - \"mprop\"\n\
+                Measure mixed Encoding Properties\n\
     <nr0>\n\
         random number generator seed\n\
     <nr1>\n\
@@ -40,12 +44,13 @@ int main(int argc, char * argv[])
         0 --> Flush+Reload Bitwise
         1 --> Load+Flush Bitwise
         2 --> Flush+Reload Array Index
+        42 --> Flush+Reload Encoding mixed
     */
     uint8_t covert_channel = 0;
     if (!strcmp(argv[1], "frb"))
     {
         covert_channel = 0;
-    } else if (!strcmp(argv[1], "frbm"))
+    } else if (!strcmp(argv[1], "frm") || !strcmp(argv[1], "mprop"))
     {
         covert_channel = 42;
         if (argc < 7)
@@ -74,7 +79,14 @@ int main(int argc, char * argv[])
         n_a = atoi(argv[4]);
         stride = atoi(argv[5]);
         train_count = atoi(argv[6]);
-        measure_mixed(n_b, n_a, stride, train_count, covert_channel);
+        if (!strcmp(argv[1], "frm"))
+        {
+            measure_mixed(n_b, n_a, stride, train_count, covert_channel);
+        }
+        else
+        {
+            measure_mixed_properties(n_b, n_a, stride, train_count, covert_channel);
+        }
     }
     else
     {

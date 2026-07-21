@@ -169,6 +169,8 @@ uint64_t decode_flush_reload_array_index(uint8_t side_channel[], uint8_t bits_co
 
 uint64_t decode_flush_reload_dynamic(uint8_t side_channel[], uint8_t n_b, uint8_t n_a, uint64_t stride, size_t threshold);
 
+uint64_t decode_flush_reload_dynamic_print_props(uint8_t side_channel[], uint8_t n_b, uint8_t n_a, uint64_t stride, size_t threshold);
+
 uint64_t decode_load_flush_bitwise(uint8_t side_channel[], uint8_t bits_count, uint64_t stride, size_t threshold);
 
 #endif

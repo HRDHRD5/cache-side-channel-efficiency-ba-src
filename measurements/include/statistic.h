@@ -14,6 +14,8 @@ void measure_ones(uint8_t bits_count, uint64_t stride, uint64_t training_data_le
 
 void measure_mixed(uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t training_data_length, uint8_t covert_channel);
 
+void measure_mixed_properties(uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t training_data_length, uint8_t covert_channel);
+
 void run_bits_and_stride_test(const char *filename);
 
 void run_training_length_test(const char *filename);
