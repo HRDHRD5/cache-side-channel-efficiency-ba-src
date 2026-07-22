@@ -209,7 +209,7 @@ uint64_t transfer_array_index(void (*asm_encode)(uint64_t data, uint8_t *channel
 uint64_t transfer_mixed(void (*asm_encode)(uint64_t data, uint8_t *channel,
                                            uint8_t n_b, uint8_t n_a, uint64_t bitmask, uint64_t stride),
                         uint64_t (*decode)(uint8_t side_channel[], uint8_t n_b, uint8_t n_a, uint64_t stride, size_t threshold),
-                        uint64_t in, uint8_t *channel, size_t threshold, uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t train_data_length,
+                        uint64_t in, uint8_t channel[], size_t threshold, uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t train_data_length,
                         uint8_t covert_channel)
 {
     size_t channel_array_size = (size_t)(((n_b * (powl(2, n_a) - 1)) + 3) * stride);
