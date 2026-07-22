@@ -59,7 +59,7 @@ void measure_mixed(uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t training_
     // getting a new threshold for every run
     size_t threshold = get_threshold(covert_channel);
 
-    size_t channel_array_size = (size_t)(((n_b * (powl(2, n_a) - 1)) + 3) * stride);
+    size_t channel_array_size = (size_t)(((n_b * (powl(2, n_a) - 1)) + 3) * (stride+64));
     uint8_t *side_channel = (uint8_t*) malloc(channel_array_size);
     //printf("Channel address: %zu\n", side_channel);
     memset(side_channel, 5, channel_array_size);
@@ -78,6 +78,8 @@ void measure_mixed(uint8_t n_b, uint8_t n_a, uint64_t stride, uint64_t training_
     }
 
     size_t timediff = rdtsc() - start;
+
+    free(side_channel);
 
     char secret_str[65];
     char result_str[65];

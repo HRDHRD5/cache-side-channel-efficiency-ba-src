@@ -27,7 +27,6 @@ def parse_csv(file: str, keys: list[str]) -> dict:
 
 def print_measured_props():
     props = parse_csv("props-prop-measure.csv", ["stat"])["data"]["props"]
-    results = parse_csv("result-prop-measure.csv", ["stride"])["data"][4096]
 
     T_P_s = 0
     T_T_s = 0
